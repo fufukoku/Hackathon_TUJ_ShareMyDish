@@ -51,6 +51,21 @@
       b.classList.toggle("primary", addMode);
       toast(addMode ? "Click map to place a dish pin." : "Add mode off.");
     };
+    
+    document.getElementById("locateBtn").onclick = () => {
+    if (!navigator.geolocation) return toast("Geolocation not supported.");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        map.panTo(me); map.setZoom(14);
+        new google.maps.Marker({
+          position: me, map, title: "You are here",
+          icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor:"#0b57d0", fillOpacity:1, strokeColor:"#fff", strokeWeight:2 }
+        });
+      },
+      () => toast("Unable to get your location.")
+    );
+  };
   }
 
   global.initMap = async function () {
