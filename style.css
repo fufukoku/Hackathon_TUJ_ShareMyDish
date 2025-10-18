@@ -1,22 +1,25 @@
-html, body { height: 100%; margin: 0; font-family: system-ui, Arial, sans-serif; }
-#map { height: 100%; width: 100%; }
-.panel {
-  position: fixed; top: 12px; left: 12px; z-index: 10;
-  background: #ffffffee; backdrop-filter: blur(4px);
-  border: 1px solid #eee; border-radius: 12px; padding: 10px 12px;
-  display: grid; grid-auto-flow: column; gap: 8px; align-items: center;
-  box-shadow: 0 6px 24px rgba(0,0,0,.08);
-}
-.panel input, .panel select { padding:6px 8px; border:1px solid #ddd; border-radius:10px; min-width: 140px;}
+html, body { height:100%; margin:0; font-family: system-ui, Arial, sans-serif; }
+#map { height:100%; width:100%; }
+
+/* Buttons */
 .btn { padding: 8px 12px; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; background:#fff; }
 .btn.primary { background:#0b57d0; color:#fff; border-color:#0b57d0; }
+
+/* Toast */
 .toast {
   position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
   background: #111; color: #fff; padding: 10px 14px; border-radius: 10px;
   font-size: 14px; opacity: 0; transition: opacity .25s ease; z-index: 10;
 }
 .toast.show { opacity: 1; }
-@media (max-width: 900px) {
-  .panel { grid-auto-flow: row; left: 8px; right: 8px; }
-  .panel input, .panel select { min-width: unset; width: 100%; }
+
+/* Fullscreen mode overlay */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center; z-index: 20;
 }
+.overlay-card {
+  background: #fff; border-radius: 14px; padding: 20px 22px; width: 320px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2); text-align: center;
+}
+.overlay-actions { display: grid; gap: 10px; margin: 12px 0; }
