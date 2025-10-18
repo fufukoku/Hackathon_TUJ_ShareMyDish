@@ -46,4 +46,20 @@
     return p;
   }
 
+
+  // ---- REST (stubs; enable later) ----
+  async function rest_getPosts() {
+    const r = await fetch(`${cfg.API_BASE_URL}/posts`);
+    if (!r.ok) throw new Error("REST getPosts failed");
+    return await r.json();
+  }
+  async function rest_createPost(p) {
+    const r = await fetch(`${cfg.API_BASE_URL}/posts`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p)
+    });
+    if (!r.ok) throw new Error("REST createPost failed");
+    return await r.json();
+  }
+
+
 })(window);
