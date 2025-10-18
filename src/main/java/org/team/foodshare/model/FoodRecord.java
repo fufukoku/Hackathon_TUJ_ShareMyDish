@@ -33,4 +33,6 @@ public class FoodRecord {
     private int userId;
 
     private int status;
+
+    private long createTime;
 }

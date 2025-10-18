@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS food_record (
     expire_time INTEGER,
     user_id INTEGER,
     status INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
