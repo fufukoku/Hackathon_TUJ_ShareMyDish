@@ -20,10 +20,19 @@
     </div>
   </div>
 
-  <!-- No top panel anymore -->
+  <!-- In-map hint banner (shows current mode + Change mode) -->
+  <div id="modeHint" class="mode-hint" style="display:none;"></div>
+
+  <!-- Map -->
   <div id="map"></div>
+
+  <!-- Floating Locate button -->
+  <button id="locateBtn" class="fab-locate" aria-label="Locate me">📍</button>
+
+  <!-- Toast -->
   <div id="toast" class="toast"></div>
 
+  <!-- App scripts -->
   <script src="./js/config.js"></script>
   <script src="./js/api.js"></script>
   <script src="./js/map.js"></script>

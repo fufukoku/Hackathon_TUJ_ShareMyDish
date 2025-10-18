@@ -1,11 +1,3 @@
-// REST endpoints:
-//   GET  /posts  -> returns array: [{id,title,desc,cat,lat,lng,createdAt,expiresAt}]
-//   POST /posts  -> accepts {title,desc,cat,lat,lng,expiresAt?} returns created object with id/createdAt
-//
-// To switch backend modes:
-//   In js/config.js set BACKEND: 'rest' and define API_BASE_URL
-//   Or set BACKEND: 'firebase' and fill FIREBASE config (and create 'posts' collection)
-
 (function (global) {
   const cfg = global.SMD_CONFIG || {};
   const KEY = "smd_posts_v2"; // bump version to avoid old schema collisions

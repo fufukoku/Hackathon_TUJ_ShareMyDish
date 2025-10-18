@@ -53,18 +53,19 @@
     if (!expiresInput.value && !naCheckbox.checked) return toast("Please provide an expiry date or check Not applicable.");
 
     const post = {
-      id: crypto.randomUUID(),
-      title: typeInput.value,
-      type: typeInput.value,
-      description: descInput.value.trim(),
-      lat, lng,
-      producedAt: startOfDay(producedInput.value),                   // date-only
-      expiresAt: naCheckbox.checked ? null : endOfDay(expiresInput.value), // date-only
-      postedAt: Date.now(),
-      status: "active",
-      accessCode: generateCode(),
-      imageData: imgPreview.src || null,
+    id: crypto.randomUUID(),
+    title: typeInput.value.trim(),
+    type:  typeInput.value.trim(),   // <-- string
+    description: descInput.value.trim(),
+    lat, lng,
+    producedAt: startOfDay(producedInput.value),
+    expiresAt: naCheckbox.checked ? null : endOfDay(expiresInput.value),
+    postedAt: Date.now(),
+    status: "active",
+    accessCode: generateCode(),
+    imageData: imgPreview.src || null,
     };
+
 
     try {
       await window.SMD_API.createPost(post);

@@ -10,7 +10,7 @@
     .card { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; box-shadow:0 6px 24px rgba(0,0,0,.06); }
     .row { display:grid; gap:10px; margin: 10px 0; }
     label { font-weight:600; }
-    input[type="text"], input[type="datetime-local"], select, textarea {
+    input[type="text"], input[type="date"], select, textarea {
       padding:10px; border:1px solid #ddd; border-radius:10px; width:100%;
     }
     textarea { min-height: 80px; }
@@ -31,21 +31,22 @@
         <img id="imgPreview" class="img-preview" alt="" style="display:none;" />
       </div>
 
-      <div class="row">
-        <label>Food type *</label>
-        <select id="typeInput" required>
-          <option value="">-- Select a type --</option>
-          <option>🍛 Cooked - Ramen</option>
-          <option>🍛 Cooked - Curry</option>
-          <option>🍛 Cooked - Other</option>
-          <option>🍱 Bento</option>
-          <option>🍞 Bread</option>
-          <option>🍎 Fruit</option>
-          <option>🥬 Vegetables</option>
-          <option>🧁 Sweets</option>
-          <option>🥗 Other</option>
-        </select>
-      </div>
+<!-- Food type * (free text string) -->
+<div class="row">
+  <label>Food type *</label>
+  <input id="typeInput" type="text" list="typeSuggestions" placeholder="e.g., Ramen, Curry, Bento" required />
+  <datalist id="typeSuggestions">
+    <option value="Ramen"></option>
+    <option value="Curry"></option>
+    <option value="Bento"></option>
+    <option value="Bread"></option>
+    <option value="Fruit"></option>
+    <option value="Vegetables"></option>
+    <option value="Sweets"></option>
+    <option value="Other"></option>
+  </datalist>
+</div>
+
 
       <div class="row">
         <label>Description *</label>
@@ -53,20 +54,20 @@
       </div>
 
       <div class="row">
-        <label>Created time (when the food was made) *</label>
-        <input id="producedInput" type="datetime-local" required />
+        <label>Created date (when the food was made) *</label>
+        <input id="producedInput" type="date" required />
       </div>
 
       <div class="row">
-        <label>Expires *</label>
+        <label>Expires (date-only) *</label>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <input id="expiresInput" type="datetime-local" />
+          <input id="expiresInput" type="date" />
           <label style="display:flex; gap:6px; align-items:center;">
             <input id="naCheckbox" type="checkbox" />
             Not applicable
           </label>
         </div>
-        <small class="hint">Either provide an expiry time or check "Not applicable".</small>
+        <small class="hint">Either provide an expiry date or check "Not applicable".</small>
       </div>
 
       <div class="actions">

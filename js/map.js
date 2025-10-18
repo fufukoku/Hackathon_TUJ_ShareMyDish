@@ -1,8 +1,7 @@
 (function (global) {
-  const cfg = global.SMD_CONFIG || {};
   let map, markers = [];
   let appMode = null;      // 'upload' | 'pickup'
-  let addMode = false;     // only meaningful in 'upload'
+  let meMarker = null;     // user's current location marker
 
   // Staging state for the "Upload here" flow
   let stagingMarker = null;
@@ -22,6 +21,26 @@
     if (stagingMarker) { stagingMarker.setMap(null); stagingMarker = null; }
   }
 
+  function updateModeHint() {
+    const el = document.getElementById("modeHint");
+    const overlay = document.getElementById("modeOverlay");
+    if (!el) return;
+    if (!appMode) { el.style.display = "none"; return; }
+    el.style.display = "flex";
+    if (appMode === "upload") {
+      el.innerHTML = `Upload mode — click the map to choose a location. <span id="changeMode" class="link">Change mode</span>`;
+    } else {
+      el.innerHTML = `Pick up mode — tap a pin to view details. <span id="changeMode" class="link">Change mode</span>`;
+    }
+    const change = document.getElementById("changeMode");
+    if (change) {
+      change.onclick = () => {
+        clearStaging();
+        overlay.style.display = "flex";
+      };
+    }
+  }
+
   function render(posts) {
     // Clear previous markers
     markers.forEach(m => m.setMap(null)); markers = [];
@@ -35,24 +54,24 @@
         map, title: p.title
       });
 
-      // Info window for pickup users
       const infoId = `info-${p.id}`;
       const contactId = `contact-${p.id}`;
       const codeInputId = `code-${p.id}`;
       const markId = `mark-${p.id}`;
 
-      const expiresLine = p.expiresAt
-        ? `<div style="font-size:12px; opacity:.7">Expires: ${new Date(p.expiresAt).toLocaleString()}</div>`
-        : `<div style="font-size:12px; opacity:.7">Expires: N/A</div>`;
-
       const producedLine = p.producedAt
-        ? `<div style="font-size:12px; opacity:.7">Created: ${new Date(p.producedAt).toLocaleString()}</div>`
+        ? `<div style="font-size:12px; opacity:.7">Created: ${new Date(p.producedAt).toLocaleDateString()}</div>`
         : "";
+
+      const expiresLine = p.expiresAt
+        ? `<div style="font-size:12px; opacity:.7">Expires: ${new Date(p.expiresAt).toLocaleDateString()}</div>`
+        : `<div style="font-size:12px; opacity:.7">Expires: N/A</div>`;
 
       const info = new google.maps.InfoWindow({
         content: `<div id="${infoId}" style="min-width:240px">
-          <div style="font-size:16px"><strong>${escapeHtml(p.title)}</strong> <span>${escapeHtml(p.type||p.cat||"")}</span></div>
-          <div style="margin:4px 0 6px; font-size:13px">${escapeHtml(p.description||p.desc||"")}</div>
+          ${p.imageData ? `<img src="${p.imageData}" alt="" style="max-width:100%; border-radius:10px; margin-bottom:8px; border:1px solid #eee;" />` : ""}
+          <div style="font-size:16px"><strong>${escapeHtml(p.title)}</strong> <span>${escapeHtml(p.type||"")}</span></div>
+          <div style="margin:4px 0 6px; font-size:13px">${escapeHtml(p.description||"")}</div>
           ${producedLine}
           ${expiresLine}
           <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
@@ -114,54 +133,41 @@
     const overlay = document.getElementById("modeOverlay");
     const modeUpload = document.getElementById("modeUpload");
     const modePickup = document.getElementById("modePickup");
-    const panel = document.getElementById("topPanel");
 
     if (!overlay || !modeUpload || !modePickup) return;
 
     const choose = (mode) => {
       appMode = mode; // 'upload' | 'pickup'
       overlay.style.display = "none";
-      // In upload mode, show top panel and allow Add Mode
-      panel.style.display = mode === "upload" ? "grid" : "none";
-      toast(mode === "upload" ? "Upload mode. Click Add Mode to place a staging pin." : "Pick up mode.");
+      updateModeHint();
+      toast(mode === "upload" ? "Upload mode. Click the map to choose a location." : "Pick up mode.");
     };
 
     modeUpload.onclick = () => choose("upload");
     modePickup.onclick = () => choose("pickup");
   }
 
-  function wireButtons() {
-    const addBtn = document.getElementById("addModeBtn");
-    if (addBtn) {
-      addBtn.onclick = () => {
-        if (appMode !== "upload") return toast("Add Mode is only for Upload mode.");
-        addMode = !addMode;
-        addBtn.textContent = `Add Mode: ${addMode ? "ON" : "OFF"}`;
-        addBtn.classList.toggle("primary", addMode);
-        if (!addMode) clearStaging();
-        toast(addMode ? "Click on the map to place a staging pin." : "Add mode off.");
-      };
-    }
+  function wireLocateButton() {
     const locateBtn = document.getElementById("locateBtn");
-    if (locateBtn) {
-      locateBtn.onclick = () => {
-        if (!navigator.geolocation) return toast("Geolocation not supported.");
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            map.panTo(me); map.setZoom(14);
-            new google.maps.Marker({
-              position: me, map, title: "You are here",
-              icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor:"#0b57d0", fillOpacity:1, strokeColor:"#fff", strokeWeight:2 }
-            });
-          },
-          () => toast("Unable to get your location.")
-        );
-      };
-    }
+    if (!locateBtn) return;
+    locateBtn.onclick = () => {
+      if (!navigator.geolocation) return toast("Geolocation not supported.");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          map.panTo(me); map.setZoom(14);
+          if (meMarker) meMarker.setMap(null);
+          meMarker = new google.maps.Marker({
+            position: me, map, title: "You are here",
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor:"#0b57d0", fillOpacity:1, strokeColor:"#fff", strokeWeight:2 }
+          });
+        },
+        () => toast("Unable to get your location.")
+      );
+    };
   }
 
-  // Google Maps callback (invoked after script loads)
+  // Google Maps callback
   global.initMap = async function () {
     const center = { lat: 35.68, lng: 139.76 }; // Tokyo
     map = new google.maps.Map(document.getElementById("map"), {
@@ -169,23 +175,21 @@
     });
 
     wireModeOverlay();
-    wireButtons();
+    wireLocateButton();
     await loadAndRender();
 
-    // Upload flow: click to place a staging pin, then "Upload here" -> upload.html
+    // In upload mode, clicking the map opens a staging pin -> Upload page
     map.addListener("click", (e) => {
-      if (appMode !== "upload" || !addMode) return;
+      if (appMode !== "upload") return;
 
-      clearStaging();
-
-      const title = (document.getElementById("titleInput")?.value || "").trim() || "Shared Dish";
-      const desc  = (document.getElementById("descInput")?.value  || "").trim();
-      const cat   = (document.getElementById("catInput")?.value    || "🥗 Other");
+      // Create/replace staging pin
+      if (stagingInfo) { stagingInfo.close(); stagingInfo = null; }
+      if (stagingMarker) { stagingMarker.setMap(null); stagingMarker = null; }
 
       stagingMarker = new google.maps.Marker({
         position: e.latLng,
         map,
-        title: "[Staging] " + title,
+        title: "[Staging]",
         opacity: 0.9
       });
 
@@ -193,8 +197,8 @@
       const cancelId = "cancel-staging";
       stagingInfo = new google.maps.InfoWindow({
         content: `<div style="min-width:240px">
-          <div style="font-size:15px"><strong>${escapeHtml(title)}</strong> <span>${escapeHtml(cat)}</span></div>
-          <div style="margin:4px 0 6px; font-size:13px">${escapeHtml(desc || "Select this location to upload your item.")}</div>
+          <div style="font-size:15px"><strong>Use this location?</strong></div>
+          <div style="margin:6px 0; font-size:13px">Click “Upload here” to fill in the details.</div>
           <div style="display:flex; gap:8px;">
             <button id="${gotoId}" style="padding:6px 10px; border:1px solid #0b57d0; background:#0b57d0; color:#fff; border-radius:8px; cursor:pointer;">Upload here</button>
             <button id="${cancelId}" style="padding:6px 10px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer;">Cancel</button>
@@ -210,7 +214,6 @@
           gotoBtn.onclick = () => {
             const lat = stagingMarker.getPosition().lat();
             const lng = stagingMarker.getPosition().lng();
-            // Pass coordinates via query string
             window.location.href = `./upload.html?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`;
           };
         }
