@@ -1,0 +1,7 @@
+# Keep secrets local
+js/config.js
+
+# Common ignores
+node_modules/
+dist/
+.DS_Store

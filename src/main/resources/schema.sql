@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS food_record (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    food_name VARCHAR(200) NOT NULL,
+    description TEXT,
+    food_image VARCHAR(500),
+    x REAL,
+    y REAL,
+    expire_time INTEGER,
+    food_type VARCHAR(100),
+    status INTEGER DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    fid INTEGER NOT NULL,
+    status INTEGER DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
