@@ -52,10 +52,10 @@ public class FoodRecordController {
         newRecord.setStatus(0);
         newRecord.setFoodType(foodRecord.getFoodType());
         newRecord.setFoodImage(imagePath);
-        newRecord.setCreateTime(System.currentTimeMillis());
+        newRecord.setCreateTime(foodRecord.getCreateTime());
         foodRecordService.save(newRecord);
 
-        String claimCode = MessageSend.generateCode().toLowerCase();
+        String claimCode = MessageSend.generateCode().toUpperCase();
         Code code = new Code();
         code.setFid(newRecord.getId().intValue());
         code.setCode(claimCode);
@@ -79,7 +79,6 @@ public class FoodRecordController {
         return MessageSend.returnSuccess(foodRecords);
     }
 
-
     @PostMapping("/claim")
     public Result claimFood(@RequestParam("code") String codeStr, @RequestParam("fid") int fid){
         Code code = codeService.getByCodeAndFid(codeStr, fid);
@@ -98,7 +97,7 @@ public class FoodRecordController {
             return MessageSend.returnError(-1, "Food record not found");
         }
 
-        if (foodRecord.getExpireTime() < System.currentTimeMillis()){
+        if (foodRecord.getExpireTime() < System.currentTimeMillis() && foodRecord.getExpireTime() != 0){
             return MessageSend.returnError(-1, "Food item has expired");
         }
 
