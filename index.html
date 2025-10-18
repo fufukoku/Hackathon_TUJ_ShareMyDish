@@ -7,10 +7,24 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <div class="panel">
+  <!-- Mode selection overlay -->
+  <div id="modeOverlay" class="overlay">
+    <div class="overlay-card">
+      <h2>Select your mode</h2>
+      <p>Please choose what you want to do today.</p>
+      <div class="overlay-actions">
+        <button id="modeUpload" class="btn primary">I want to upload</button>
+        <button id="modePickup" class="btn">I want to pick up</button>
+      </div>
+      <small>Your choice only affects the map UI behavior.</small>
+    </div>
+  </div>
+
+  <!-- Top control bar (visible in Upload mode for convenience) -->
+  <div class="panel" id="topPanel" style="display:none;">
     <strong>ShareMyDish</strong>
     <input id="titleInput" type="text" placeholder="Dish title (e.g., Extra Bento)" />
-    <input id="descInput" type="text" placeholder="Short note (e.g., free until 6pm)" />
+    <input id="descInput" type="text" placeholder="Short note (optional here)" />
     <select id="catInput" title="Category">
       <option>🍱 Bento</option>
       <option>🍞 Bread</option>
@@ -18,10 +32,8 @@
       <option>🍎 Fruit</option>
       <option selected>🥗 Other</option>
     </select>
-    <input id="expireInput" type="number" min="1" max="48" value="6" title="Expires in hours" />
     <button id="addModeBtn" class="btn">Add Mode: OFF</button>
     <button id="locateBtn" class="btn">📍 Locate me</button>
-    <button id="resetBtn" class="btn">↺ Reset demo</button>
   </div>
 
   <div id="map"></div>
@@ -31,6 +43,7 @@
   <script src="./js/api.js"></script>
   <script src="./js/map.js"></script>
 
+  <!-- Inject Google Maps using the key from config.js -->
   <script>
     (function () {
       const key = window.SMD_CONFIG?.GOOGLE_MAPS_API_KEY;
