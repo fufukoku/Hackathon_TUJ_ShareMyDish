@@ -42,10 +42,8 @@
   }
 
   function render(posts) {
-    // Clear previous markers
     markers.forEach(m => m.setMap(null)); markers = [];
 
-    // Draw active posts only
     posts.forEach(p => {
       if (p.status && p.status !== "active") return;
 
@@ -121,7 +119,8 @@
 
   async function loadAndRender() {
     try {
-      const posts = await global.SMD_API.getPosts();
+      const c = map.getCenter();
+      const posts = await global.SMD_API.getPosts({ lat: c.lat(), lng: c.lng() });
       render(posts);
     } catch (e) {
       console.error(e);
@@ -133,16 +132,14 @@
     const overlay = document.getElementById("modeOverlay");
     const modeUpload = document.getElementById("modeUpload");
     const modePickup = document.getElementById("modePickup");
-
     if (!overlay || !modeUpload || !modePickup) return;
 
     const choose = (mode) => {
-      appMode = mode; // 'upload' | 'pickup'
+      appMode = mode;
       overlay.style.display = "none";
       updateModeHint();
       toast(mode === "upload" ? "Upload mode. Click the map to choose a location." : "Pick up mode.");
     };
-
     modeUpload.onclick = () => choose("upload");
     modePickup.onclick = () => choose("pickup");
   }
@@ -167,7 +164,6 @@
     };
   }
 
-  // Google Maps callback
   global.initMap = async function () {
     const center = { lat: 35.68, lng: 139.76 }; // Tokyo
     map = new google.maps.Map(document.getElementById("map"), {
@@ -182,7 +178,6 @@
     map.addListener("click", (e) => {
       if (appMode !== "upload") return;
 
-      // Create/replace staging pin
       if (stagingInfo) { stagingInfo.close(); stagingInfo = null; }
       if (stagingMarker) { stagingMarker.setMap(null); stagingMarker = null; }
 
@@ -225,5 +220,8 @@
         }
       });
     });
+
+    // reload when map movement stops
+    map.addListener("idle", loadAndRender);
   };
 })(window);

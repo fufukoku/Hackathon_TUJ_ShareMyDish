@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>ShareMyDish – Community Food Map</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -30,7 +30,7 @@
   <button id="locateBtn" class="fab-locate" aria-label="Locate me">📍</button>
 
   <!-- Toast -->
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <!-- App scripts -->
   <script src="./js/config.js"></script>
@@ -49,5 +49,9 @@
       document.head.appendChild(s);
     })();
   </script>
+
+  <noscript>
+    Please enable JavaScript to use ShareMyDish.
+  </noscript>
 </body>
 </html>
