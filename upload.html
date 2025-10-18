@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ShareMyDish – Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./style.css" />
+  <style>
+    .container { max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    .card { background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; box-shadow:0 6px 24px rgba(0,0,0,.06); }
+    .row { display:grid; gap:10px; margin: 10px 0; }
+    label { font-weight:600; }
+    input[type="text"], input[type="date"], select, textarea {
+      padding:10px; border:1px solid #ddd; border-radius:10px; width:100%;
+    }
+    textarea { min-height: 80px; }
+    .actions { display:flex; gap:10px; margin-top:12px; }
+    .img-preview { max-width:100%; border:1px dashed #ccc; border-radius:10px; padding:6px; }
+    .hint { font-size:12px; opacity:.7; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Upload your food item</h2>
+    <p class="hint">Required fields are marked with *</p>
+
+    <div class="card">
+      <div class="row">
+        <label>Image (optional)</label>
+        <input type="file" id="imageInput" accept="image/*" />
+        <img id="imgPreview" class="img-preview" alt="" style="display:none;" />
+      </div>
+
+<!-- Food type * (free text string) -->
+<div class="row">
+  <label>Food type *</label>
+  <input id="typeInput" type="text" list="typeSuggestions" placeholder="e.g., Ramen, Curry, Bento" required />
+  <datalist id="typeSuggestions">
+    <option value="Ramen"></option>
+    <option value="Curry"></option>
+    <option value="Bento"></option>
+    <option value="Bread"></option>
+    <option value="Fruit"></option>
+    <option value="Vegetables"></option>
+    <option value="Sweets"></option>
+    <option value="Other"></option>
+  </datalist>
+</div>
+
+
+      <div class="row">
+        <label>Description *</label>
+        <textarea id="descInput" placeholder="Short description (ingredients, portion, any notes)" required></textarea>
+      </div>
+
+      <div class="row">
+        <label>Created date (when the food was made) *</label>
+        <input id="producedInput" type="date" required />
+      </div>
+
+      <div class="row">
+        <label>Expires (date-only) *</label>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <input id="expiresInput" type="date" />
+          <label style="display:flex; gap:6px; align-items:center;">
+            <input id="naCheckbox" type="checkbox" />
+            Not applicable
+          </label>
+        </div>
+        <small class="hint">Either provide an expiry date or check "Not applicable".</small>
+      </div>
+
+      <div class="actions">
+        <button id="submitBtn" class="btn primary">Confirm upload</button>
+        <button id="cancelBtn" class="btn">Cancel</button>
+      </div>
+      <div id="toast" class="toast"></div>
+    </div>
+  </div>
+
+  <script src="./js/config.js"></script>
+  <script src="./js/api.js"></script>
+  <script src="./js/upload.js"></script>
+</body>
+</html>
