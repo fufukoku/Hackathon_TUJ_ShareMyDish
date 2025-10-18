@@ -51,53 +51,63 @@
       b.classList.toggle("primary", addMode);
       toast(addMode ? "Click map to place a dish pin." : "Add mode off.");
     };
-    
+
     document.getElementById("locateBtn").onclick = () => {
-    if (!navigator.geolocation) return toast("Geolocation not supported.");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        map.panTo(me); map.setZoom(14);
-        new google.maps.Marker({
-          position: me, map, title: "You are here",
-          icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor:"#0b57d0", fillOpacity:1, strokeColor:"#fff", strokeWeight:2 }
-        });
-      },
-      () => toast("Unable to get your location.")
-    );
+        if (!navigator.geolocation) return toast("Geolocation not supported.");
+        navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const me = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            map.panTo(me); map.setZoom(14);
+            new google.maps.Marker({
+            position: me, map, title: "You are here",
+            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor:"#0b57d0", fillOpacity:1, strokeColor:"#fff", strokeWeight:2 }
+            });
+        },
+        () => toast("Unable to get your location.")
+        );
   };
+
+  document.getElementById("resetBtn").onclick = async () => {
+    if (cfg.BACKEND === "mock") {
+        localStorage.removeItem("smd_posts_v1");
+        await (async () => { const posts = await global.SMD_API.getPosts(); render(posts); })();
+        toast("Demo data reset.");
+    } else {
+        toast("Reset is available in mock mode only.");
+    }
+    };
   }
 
-  global.initMap = async function () {
-    const center = { lat: 35.68, lng: 139.76 }; // Tokyo
-    map = new google.maps.Map(document.getElementById("map"), {
-      center, zoom: 12, mapTypeControl: false, streetViewControl: false
-    });
+    global.initMap = async function () {
+        const center = { lat: 35.68, lng: 139.76 }; // Tokyo
+        map = new google.maps.Map(document.getElementById("map"), {
+        center, zoom: 12, mapTypeControl: false, streetViewControl: false
+        });
 
-    wireButtons();
-    await loadAndRender();
-
-    // Click to add a new post when Add Mode is ON
-    map.addListener("click", async (e) => {
-      if (!addMode) return;
-      const title = document.getElementById("titleInput")?.value.trim() || "Shared Dish";
-      const desc  = document.getElementById("descInput")?.value.trim()  || "Thanks for reducing waste!";
-      const cat   = document.getElementById("catInput")?.value || "🥗 Other";
-      const expH  = Math.max(1, Math.min(48, parseInt(document.getElementById("expireInput")?.value || "6", 10)));
-      const post = {
-        id: crypto.randomUUID(),
-        title, desc, cat,
-        lat: e.latLng.lat(), lng: e.latLng.lng(),
-        createdAt: Date.now(), expiresAt: Date.now() + expH * 3600 * 1000
-      };
-      try {
-        await global.SMD_API.createPost(post);
+        wireButtons();
         await loadAndRender();
-        toast("Dish added!");
-      } catch (err) {
-        console.error(err);
-        toast("Failed to add dish");
-      }
-    });
+
+        // Click to add a new post when Add Mode is ON
+        map.addListener("click", async (e) => {
+        if (!addMode) return;
+        const title = document.getElementById("titleInput")?.value.trim() || "Shared Dish";
+        const desc  = document.getElementById("descInput")?.value.trim()  || "Thanks for reducing waste!";
+        const cat   = document.getElementById("catInput")?.value || "🥗 Other";
+        const expH  = Math.max(1, Math.min(48, parseInt(document.getElementById("expireInput")?.value || "6", 10)));
+        const post = {
+            id: crypto.randomUUID(),
+            title, desc, cat,
+            lat: e.latLng.lat(), lng: e.latLng.lng(),
+            createdAt: Date.now(), expiresAt: Date.now() + expH * 3600 * 1000
+        };
+        try {
+            await global.SMD_API.createPost(post);
+            await loadAndRender();
+            toast("Dish added!");
+        } catch (err) {
+            console.error(err);
+            toast("Failed to add dish");
+        }
+        });
   };
 })(window);
