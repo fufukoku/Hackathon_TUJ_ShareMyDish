@@ -61,5 +61,31 @@
     return await r.json();
   }
 
+  // ---- Firebase (stubs; enable later) ----
+  async function ensureFirebase() {
+    if (!cfg.FIREBASE?.apiKey) throw new Error("Missing FIREBASE config");
+    if (!global.firebase) {
+      await loadScript("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js");
+    }
+    const app = global.firebase.apps?.[0] || global.firebase.initializeApp(cfg.FIREBASE);
+    return global.firebase.firestore(app);
+  }
+  function loadScript(src) {
+    return new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+    });
+  }
+  async function firebase_getPosts() {
+    const db = await ensureFirebase();
+    const snap = await db.collection("posts").get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+  async function firebase_createPost(p) {
+    const db = await ensureFirebase();
+    const doc = await db.collection("posts").add({ ...p, createdAt: Date.now() });
+    return { id: doc.id, ...p, createdAt: Date.now() };
+  }
 
 })(window);
